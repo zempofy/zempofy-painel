@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zempofy — Painel</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --verde: #00b141;
+      --verde-glow: rgba(0,177,65,0.12);
+      --fundo: #09090b;
+      --card: #18181b;
+      --borda: #27272a;
+      --input: #1c1c1f;
+      --texto: #fafafa;
+      --texto-apagado: #71717a;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--fundo);
+      color: var(--texto);
+      min-height: 100vh;
+    }
+
+    /* ── LOGIN ── */
+    #tela-login {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .login-box {
+      background: var(--card);
+      border: 1px solid var(--borda);
+      border-radius: 20px;
+      padding: 40px;
+      width: 100%;
+      max-width: 380px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    }
+
+    .login-logo {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--verde);
+      letter-spacing: -0.03em;
+      margin-bottom: 8px;
+    }
+
+    .login-sub {
+      font-size: 0.85rem;
+      color: var(--texto-apagado);
+      margin-bottom: 32px;
+    }
+
+    .login-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: var(--texto-apagado);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .login-input {
+      width: 100%;
+      background: var(--input);
+      border: 1px solid var(--borda);
+      border-radius: 10px;
+      padding: 12px 14px;
+      color: var(--texto);
+      font-size: 0.9rem;
+      font-family: 'Inter', sans-serif;
+      margin-bottom: 20px;
+      transition: border-color 0.15s;
+    }
+
+    .login-input:focus { outline: none; border-color: var(--verde); }
+
+    .login-btn {
+      width: 100%;
+      background: linear-gradient(135deg, #00b141, #008f34);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 12px;
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,177,65,0.3);
+    }
+
+    .login-erro {
+      font-size: 0.8rem;
+      color: #f87171;
+      background: rgba(248,113,113,0.08);
+      border: 1px solid rgba(248,113,113,0.2);
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 16px;
+      display: none;
+    }
+
+    /* ── PAINEL ── */
+    #tela-painel { display: none; }
+
+    .topbar {
+      background: var(--card);
+      border-bottom: 1px solid var(--borda);
+      padding: 0 32px;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .topbar-logo { font-size: 1.1rem; font-weight: 700; color: var(--verde); letter-spacing: -0.03em; }
+    .topbar-badge { font-size: 0.72rem; color: var(--texto-apagado); background: var(--input); border: 1px solid var(--borda); border-radius: 6px; padding: 3px 10px; }
+
+    .topbar-sair {
+      background: none;
+      border: 1px solid var(--borda);
+      border-radius: 8px;
+      color: var(--texto-apagado);
+      padding: 6px 14px;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+
+    .conteudo { padding: 32px; max-width: 1100px; margin: 0 auto; }
+
+    .titulo-pag { font-size: 1.6rem; font-weight: 700; letter-spacing: -0.03em; margin-bottom: 4px; }
+    .sub-pag { font-size: 0.875rem; color: var(--texto-apagado); margin-bottom: 28px; }
+
+    /* Cards de resumo */
+    .cards-resumo {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .card-resumo {
+      background: var(--card);
+      border: 1px solid var(--borda);
+      border-radius: 16px;
+      padding: 20px;
+    }
+
+    .card-resumo-num {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--texto);
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+
+    .card-resumo-label { font-size: 0.8rem; color: var(--texto-apagado); }
+
+    /* Busca */
+    .busca-input {
+      width: 100%;
+      background: var(--card);
+      border: 1px solid var(--borda);
+      border-radius: 10px;
+      padding: 10px 16px;
+      color: var(--texto);
+      font-size: 0.875rem;
+      font-family: 'Inter', sans-serif;
+      margin-bottom: 16px;
+    }
+
+    .busca-input:focus { outline: none; border-color: var(--verde); }
+
+    /* Tabela */
+    .tabela-wrap {
+      background: var(--card);
+      border: 1px solid var(--borda);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .tabela-header {
+      display: grid;
+      grid-template-columns: 2fr 1.2fr 0.8fr 0.8fr 0.8fr 0.8fr;
+      padding: 12px 20px;
+      border-bottom: 1px solid var(--borda);
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: var(--texto-apagado);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    .tabela-linha {
+      display: grid;
+      grid-template-columns: 2fr 1.2fr 0.8fr 0.8fr 0.8fr 0.8fr;
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--borda);
+      align-items: center;
+      transition: background 0.1s;
+    }
+
+    .tabela-linha:last-child { border-bottom: none; }
+    .tabela-linha:hover { background: rgba(255,255,255,0.02); }
+
+    .empresa-nome { font-size: 0.9rem; font-weight: 600; color: var(--texto); }
+    .empresa-titular { font-size: 0.78rem; color: var(--texto-apagado); margin-top: 2px; }
+
+    .badge-plano {
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
+      width: fit-content;
+    }
+
+    .badge-gratuito { background: rgba(113,113,122,0.15); color: var(--texto-apagado); border: 1px solid var(--borda); }
+    .badge-premium { background: rgba(0,177,65,0.12); color: var(--verde); border: 1px solid rgba(0,177,65,0.2); }
+
+    .cel { font-size: 0.85rem; color: var(--texto); }
+    .cel-apagado { font-size: 0.82rem; color: var(--texto-apagado); }
+
+    .vazio { text-align: center; padding: 48px; color: var(--texto-apagado); font-size: 0.875rem; }
+
+    .loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 48px;
+      color: var(--texto-apagado);
+      font-size: 0.875rem;
+      gap: 10px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2px solid var(--borda);
+      border-top-color: var(--verde);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    @media (max-width: 768px) {
+      .tabela-header, .tabela-linha {
+        grid-template-columns: 1fr 1fr;
+      }
+      .tabela-header span:nth-child(n+3),
+      .tabela-linha div:nth-child(n+3) { display: none; }
+      .conteudo { padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── TELA DE LOGIN ── -->
+<div id="tela-login">
+  <div class="login-box">
+    <div class="login-logo">Zempofy</div>
+    <p class="login-sub">Painel administrativo</p>
+    <div class="login-erro" id="login-erro">Senha incorreta.</div>
+    <label class="login-label" for="senha">Senha</label>
+    <input class="login-input" type="password" id="senha" placeholder="Digite sua senha" onkeydown="if(event.key==='Enter') entrar()" />
+    <button class="login-btn" onclick="entrar()">Entrar</button>
+  </div>
+</div>
+
+<!-- ── TELA DO PAINEL ── -->
+<div id="tela-painel">
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <span class="topbar-logo">Zempofy</span>
+      <span class="topbar-badge">Painel interno</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <span id="ultima-atualizacao" style="font-size:0.72rem;color:var(--texto-apagado);"></span>
+      <button class="topbar-sair" onclick="sair()">Sair</button>
+    </div>
+  </div>
+
+  <div class="conteudo">
+    <h1 class="titulo-pag">Visão geral</h1>
+    <p class="sub-pag" id="sub-data">Carregando...</p>
+
+    <!-- Cards de resumo -->
+    <div class="cards-resumo">
+      <div class="card-resumo">
+        <div class="card-resumo-num" id="total-empresas">—</div>
+        <div class="card-resumo-label">Empresas cadastradas</div>
+      </div>
+      <div class="card-resumo">
+        <div class="card-resumo-num" id="empresas-ativas">—</div>
+        <div class="card-resumo-label">Empresas ativas</div>
+      </div>
+      <div class="card-resumo">
+        <div class="card-resumo-num" id="total-usuarios">—</div>
+        <div class="card-resumo-label">Usuários no total</div>
+      </div>
+      <div class="card-resumo">
+        <div class="card-resumo-num" id="total-implantacoes">—</div>
+        <div class="card-resumo-label">Implantações ativas</div>
+      </div>
+    </div>
+
+    <!-- Busca -->
+    <input class="busca-input" type="text" placeholder="Buscar empresa..." oninput="filtrar(this.value)" />
+
+    <!-- Tabela -->
+    <div class="tabela-wrap">
+      <div class="tabela-header">
+        <span>Empresa</span>
+        <span>Plano</span>
+        <span>Usuários</span>
+        <span>Implant. ativas</span>
+        <span>Implant. concluídas</span>
+        <span>Cadastro</span>
+      </div>
+      <div id="tabela-corpo">
+        <div class="loading"><div class="spinner"></div> Carregando dados...</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const API = 'https://zempofy-api-5bu7.onrender.com/api';
+  const SENHA = 'zempofymaster2026';
+  const CHAVE = 'zempofymaster2026';
+
+  let todosEmpresas = [];
+
+  function entrar() {
+    const senha = document.getElementById('senha').value;
+    const erro = document.getElementById('login-erro');
+    if (senha !== SENHA) {
+      erro.style.display = 'block';
+      return;
+    }
+    erro.style.display = 'none';
+    sessionStorage.setItem('zmp-painel', '1');
+    document.getElementById('tela-login').style.display = 'none';
+    document.getElementById('tela-painel').style.display = 'block';
+    carregarDados();
+  }
+
+  function sair() {
+    sessionStorage.removeItem('zmp-painel');
+    document.getElementById('tela-painel').style.display = 'none';
+    document.getElementById('tela-login').style.display = 'flex';
+    document.getElementById('senha').value = '';
+  }
+
+  async function carregarDados() {
+    try {
+      const res = await fetch(`${API}/painel`, {
+        headers: { 'x-admin-key': CHAVE }
+      });
+      if (!res.ok) throw new Error('Erro na API');
+      const data = await res.json();
+
+      todosEmpresas = data.empresas;
+
+      // Cards de resumo
+      document.getElementById('total-empresas').textContent = data.totalEmpresas;
+      document.getElementById('empresas-ativas').textContent = data.empresasAtivas;
+      document.getElementById('total-usuarios').textContent = data.empresas.reduce((s, e) => s + e.totalUsuarios, 0);
+      document.getElementById('total-implantacoes').textContent = data.empresas.reduce((s, e) => s + e.implantacoesAtivas, 0);
+
+      const agora = new Date(data.geradoEm);
+      document.getElementById('sub-data').textContent = `Atualizado em ${agora.toLocaleDateString('pt-BR')} às ${agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`;
+      document.getElementById('ultima-atualizacao').textContent = `Última atualização: ${agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`;
+
+      renderTabela(todosEmpresas);
+    } catch (err) {
+      document.getElementById('tabela-corpo').innerHTML = `<div class="vazio">Erro ao carregar dados. Verifique se o backend está rodando.</div>`;
+    }
+  }
+
+  function filtrar(busca) {
+    const filtradas = todosEmpresas.filter(e =>
+      e.nome.toLowerCase().includes(busca.toLowerCase()) ||
+      (e.cnpj || '').includes(busca) ||
+      (e.titular?.nome || '').toLowerCase().includes(busca.toLowerCase())
+    );
+    renderTabela(filtradas);
+  }
+
+  function renderTabela(empresas) {
+    const corpo = document.getElementById('tabela-corpo');
+    if (empresas.length === 0) {
+      corpo.innerHTML = `<div class="vazio">Nenhuma empresa encontrada.</div>`;
+      return;
+    }
+
+    corpo.innerHTML = empresas.map(e => `
+      <div class="tabela-linha">
+        <div>
+          <div class="empresa-nome">${e.nome}</div>
+          <div class="empresa-titular">${e.titular ? `${e.titular.nome} · ${e.titular.email}` : 'Sem titular'}</div>
+        </div>
+        <div>
+          <span class="badge-plano badge-${e.plano}">${e.plano === 'premium' ? '⭐ Premium' : 'Gratuito'}</span>
+        </div>
+        <div class="cel">${e.totalUsuarios}</div>
+        <div class="cel">${e.implantacoesAtivas}</div>
+        <div class="cel">${e.implantacoesConcluidas}</div>
+        <div class="cel-apagado">${new Date(e.criadaEm).toLocaleDateString('pt-BR')}</div>
+      </div>
+    `).join('');
+  }
+
+  // Verifica se já está logado
+  if (sessionStorage.getItem('zmp-painel')) {
+    document.getElementById('tela-login').style.display = 'none';
+    document.getElementById('tela-painel').style.display = 'block';
+    carregarDados();
+  }
+</script>
+</body>
+</html>
