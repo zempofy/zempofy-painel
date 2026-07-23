@@ -1,204 +1,276 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Zempofy — Painel Administrativo</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background: #09090b; color: #fafafa; font-family: 'Inter', sans-serif; min-height: 100vh; }
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-
-    .login { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
-    .login-card { background: #18181b; border: 1px solid #27272a; border-radius: 16px; padding: 32px; width: 100%; max-width: 360px; }
-    .logo { font-size: 1.5rem; font-weight: 800; color: #00b141; letter-spacing: -0.03em; margin-bottom: 8px; }
-    .logo span { color: #71717a; font-size: 0.75rem; font-weight: 500; display: block; margin-top: 2px; letter-spacing: 0; }
-    h2 { font-size: 1.1rem; font-weight: 600; margin: 20px 0 6px; }
-    p.sub { font-size: 0.82rem; color: #71717a; margin-bottom: 20px; }
-    input { width: 100%; padding: 10px 14px; background: #1c1c1f; border: 1px solid #27272a; border-radius: 8px; color: #fff; font-size: 0.875rem; font-family: inherit; margin-bottom: 12px; }
-    input:focus { outline: none; border-color: #00b141; }
-    button.btn-primary { width: 100%; background: linear-gradient(135deg, #00b141, #008f34); color: #fff; border: none; border-radius: 8px; padding: 11px; font-weight: 600; font-size: 0.9rem; cursor: pointer; font-family: inherit; }
-    .erro { color: #f87171; font-size: 0.8rem; margin-bottom: 10px; background: rgba(248,113,113,0.08); padding: 8px 12px; border-radius: 8px; }
-
-    /* Dashboard */
-    #dashboard { display: none; }
-    .topbar { background: #111113; border-bottom: 1px solid #27272a; padding: 14px 28px; display: flex; align-items: center; justify-content: space-between; }
-    .topbar .logo { margin: 0; font-size: 1.2rem; }
-    .topbar .sair { background: none; border: 1px solid #27272a; border-radius: 6px; color: #71717a; padding: 6px 14px; cursor: pointer; font-size: 0.8rem; font-family: inherit; }
-    .content { padding: 28px; max-width: 1200px; margin: 0 auto; }
-    .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 28px; }
-    .metric { background: #18181b; border: 1px solid #27272a; border-radius: 12px; padding: 16px 20px; }
-    .metric .label { font-size: 0.65rem; font-weight: 700; color: #71717a; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
-    .metric .valor { font-size: 1.8rem; font-weight: 700; letter-spacing: -0.02em; }
-    .metric .sub { font-size: 0.72rem; color: #71717a; margin-top: 3px; }
-    table { width: 100%; border-collapse: collapse; background: #18181b; border: 1px solid #27272a; border-radius: 12px; overflow: hidden; }
-    th { font-size: 0.65rem; font-weight: 700; color: #71717a; text-transform: uppercase; letter-spacing: 0.8px; padding: 12px 16px; text-align: left; border-bottom: 1px solid #27272a; background: #111113; }
-    td { padding: 12px 16px; font-size: 0.85rem; border-bottom: 1px solid #1f1f22; }
-    tr:last-child td { border-bottom: none; }
-    tr:hover td { background: rgba(255,255,255,0.02); }
-    .badge { display: inline-block; font-size: 0.7rem; font-weight: 600; padding: 2px 9px; border-radius: 99px; }
-    .badge.ativo { background: rgba(0,177,65,0.12); color: #00b141; }
-    .badge.inativo { background: rgba(248,113,113,0.12); color: #f87171; }
-    .badge.starter { background: rgba(99,102,241,0.12); color: #818cf8; }
-    .badge.pro { background: rgba(245,158,11,0.12); color: #f59e0b; }
-    .badge.escala { background: rgba(0,177,65,0.12); color: #00b141; }
-    .loading { text-align: center; padding: 60px; color: #71717a; }
-    .sec-titulo { font-size: 1rem; font-weight: 600; margin-bottom: 16px; }
-    .atualizado { font-size: 0.72rem; color: #71717a; margin-bottom: 20px; }
-    .busca { width: 100%; max-width: 320px; margin-bottom: 16px; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Zempofy · Painel Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#09090b;--card:#18181b;--card2:#1c1c1f;--borda:#27272a;
+  --texto:#fafafa;--apagado:#71717a;--secundario:#a1a1aa;
+  --verde:#00b141;--verde-bg:rgba(0,177,65,.1);
+  --azul:#3b82f6;--azul-bg:rgba(59,130,246,.1);
+  --amarelo:#f59e0b;--amarelo-bg:rgba(245,158,11,.1);
+  --vermelho:#f87171;--vermelho-bg:rgba(248,113,113,.1);
+  --roxo:#818cf8;--roxo-bg:rgba(129,140,248,.1);
+}
+body{background:var(--bg);color:var(--texto);font-family:'Inter',sans-serif;min-height:100vh}
+#tela-login{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
+.login-box{background:var(--card);border:1px solid var(--borda);border-radius:16px;padding:36px;width:100%;max-width:360px}
+.logo{font-size:1.4rem;font-weight:800;color:var(--verde);letter-spacing:-.03em;margin-bottom:4px}
+.logo-sub{font-size:.78rem;color:var(--apagado);margin-bottom:28px}
+label{display:block;font-size:.7rem;font-weight:600;color:var(--apagado);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px}
+.inp{width:100%;padding:10px 14px;background:var(--card2);border:1px solid var(--borda);border-radius:8px;color:var(--texto);font-size:.875rem;font-family:inherit;outline:none;margin-bottom:16px}
+.inp:focus{border-color:var(--verde)}
+.btn{width:100%;background:linear-gradient(135deg,#00b141,#008f34);color:#fff;border:none;border-radius:8px;padding:11px;font-weight:600;font-size:.9rem;cursor:pointer;font-family:inherit}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.erro-msg{color:var(--vermelho);font-size:.8rem;background:var(--vermelho-bg);padding:8px 12px;border-radius:8px;margin-bottom:12px;display:none}
+#dashboard{display:none}
+.topbar{background:var(--card);border-bottom:1px solid var(--borda);padding:14px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}
+.topbar-logo{font-size:1rem;font-weight:700;display:flex;align-items:center;gap:8px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--verde);box-shadow:0 0 6px var(--verde)}
+.btn-sair{background:none;border:1px solid var(--borda);border-radius:6px;color:var(--apagado);padding:5px 14px;cursor:pointer;font-size:.78rem;font-family:inherit}
+.content{padding:28px;max-width:1200px;margin:0 auto}
+.grid4{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:24px}
+.metric{background:var(--card);border:1px solid var(--borda);border-radius:12px;padding:16px 18px}
+.metric .lbl{font-size:.65rem;font-weight:700;color:var(--apagado);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px}
+.metric .val{font-size:1.8rem;font-weight:700;letter-spacing:-.02em;line-height:1}
+.metric .sub{font-size:.72rem;color:var(--apagado);margin-top:4px}
+.toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px}
+.sec-titulo{font-size:1rem;font-weight:600}
+.busca{padding:8px 12px;background:var(--card);border:1px solid var(--borda);border-radius:8px;color:var(--texto);font-size:.82rem;font-family:inherit;width:240px;outline:none}
+.busca:focus{border-color:var(--verde)}
+.empresas{display:flex;flex-direction:column;gap:8px}
+.emp-card{background:var(--card);border:1px solid var(--borda);border-radius:12px;overflow:hidden}
+.emp-header{padding:16px 20px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.emp-left{display:flex;align-items:center;gap:12px;min-width:0;flex:1}
+.av{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:700;color:#fff;flex-shrink:0}
+.emp-nome{font-size:.9rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.emp-meta{font-size:.72rem;color:var(--apagado);margin-top:3px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.emp-right{display:flex;align-items:center;gap:14px;flex-shrink:0}
+.estat{text-align:center}
+.estat .n{font-size:.95rem;font-weight:600}
+.estat .l{font-size:.62rem;color:var(--apagado);margin-top:1px}
+.div{width:1px;height:26px;background:var(--borda)}
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:99px;font-size:.62rem;font-weight:700;letter-spacing:.3px}
+.bv{background:var(--verde-bg);color:var(--verde)}
+.baz{background:var(--azul-bg);color:var(--azul)}
+.bam{background:var(--amarelo-bg);color:var(--amarelo)}
+.bve{background:var(--vermelho-bg);color:var(--vermelho)}
+.bc{background:rgba(113,113,122,.1);color:var(--apagado)}
+.emp-det{display:none;border-top:1px solid var(--borda);background:#111113;padding:20px}
+.emp-det.on{display:block}
+.det-topo{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:16px;flex-wrap:wrap}
+.id-sup{font-family:'JetBrains Mono',monospace;font-size:.8rem;background:var(--card);border:1px solid var(--borda);border-radius:6px;padding:4px 10px;color:var(--azul)}
+.det-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px}
+.bloco{background:var(--card);border:1px solid var(--borda);border-radius:10px;padding:14px 16px}
+.bloco-t{font-size:.62rem;font-weight:700;color:var(--apagado);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px}
+.linha{display:flex;justify-content:space-between;align-items:center;padding:5px 0;font-size:.78rem;border-bottom:1px solid var(--borda)}
+.linha:last-child{border:none}
+.lk{color:var(--apagado)}
+.lv{font-weight:500}
+.prog-bar{height:4px;background:var(--borda);border-radius:99px;overflow:hidden;margin-top:8px}
+.prog-fill{height:100%;background:var(--verde);border-radius:99px}
+.colab{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--borda);font-size:.75rem}
+.colab:last-child{border:none}
+.cav{width:22px;height:22px;border-radius:5px;background:var(--verde-bg);display:flex;align-items:center;justify-content:center;font-size:.58rem;font-weight:700;color:var(--verde)}
+.loading{text-align:center;padding:60px;color:var(--apagado)}
+.spin{width:24px;height:24px;border:2px solid var(--borda);border-top-color:var(--verde);border-radius:50%;animation:s .8s linear infinite;margin:0 auto 12px}
+@keyframes s{to{transform:rotate(360deg)}}
+.chevron{color:var(--apagado);transition:transform .2s;flex-shrink:0}
+</style>
 </head>
 <body>
 
-<!-- Login -->
-<div class="login" id="tela-login">
-  <div class="login-card">
-    <div class="logo">Zempofy <span>Painel Administrativo</span></div>
-    <h2>Acesso restrito</h2>
-    <p class="sub">Este painel é exclusivo da equipe Zempofy.</p>
-    <div id="erro-login" class="erro" style="display:none"></div>
-    <input type="password" id="input-chave" placeholder="Chave de acesso" onkeydown="if(event.key==='Enter')entrar()" />
-    <button class="btn-primary" onclick="entrar()">Entrar</button>
+<div id="tela-login">
+  <div class="login-box">
+    <div class="logo">Zempofy</div>
+    <div class="logo-sub">Painel Administrativo &middot; Acesso restrito</div>
+    <div id="erro-login" class="erro-msg"></div>
+    <label>Chave de acesso</label>
+    <input class="inp" type="password" id="chave" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;" onkeydown="if(event.key==='Enter')entrar()">
+    <button class="btn" id="btn-ok" onclick="entrar()">Entrar</button>
   </div>
 </div>
 
-<!-- Dashboard -->
 <div id="dashboard">
   <div class="topbar">
-    <div class="logo">Zempofy <span style="display:inline;font-size:0.7rem;color:#71717a;margin-left:8px">Painel Admin</span></div>
-    <button class="sair" onclick="sair()">Sair</button>
+    <div class="topbar-logo"><div class="dot"></div>Zempofy &middot; Painel Admin</div>
+    <div style="display:flex;align-items:center;gap:12px">
+      <span style="font-size:.72rem;color:var(--apagado)" id="att"></span>
+      <button class="btn-sair" onclick="sair()">Sair</button>
+    </div>
   </div>
-  <div class="content">
-    <div id="corpo" class="loading">Carregando dados...</div>
-  </div>
+  <div class="content"><div id="corpo"><div class="loading"><div class="spin"></div>Carregando...</div></div></div>
 </div>
 
 <script>
-  const API = 'https://zempofyofc.onrender.com/api';
-  let chaveAtual = '';
+const API='https://zempofyofc.onrender.com/api';
+let chave='';
+const PLANOS={starter:39,pro:79,escala:129};
+const CORES=['#00b141','#3b82f6','#8b5cf6','#f59e0b','#ec4899','#06b6d4'];
 
-  function entrar() {
-    const chave = document.getElementById('input-chave').value.trim();
-    if (!chave) return;
-    chaveAtual = chave;
-    sessionStorage.setItem('zp_key', chave);
-    mostrarDashboard();
+function entrar(){
+  const v=document.getElementById('chave').value.trim();
+  if(!v)return;
+  chave=v; sessionStorage.setItem('zp',v);
+  const b=document.getElementById('btn-ok');
+  b.disabled=true; b.textContent='Entrando...';
+  carregar();
+}
+
+function sair(){
+  sessionStorage.removeItem('zp'); chave='';
+  document.getElementById('tela-login').style.display='flex';
+  document.getElementById('dashboard').style.display='none';
+  document.getElementById('chave').value='';
+  const b=document.getElementById('btn-ok');
+  b.disabled=false; b.textContent='Entrar';
+}
+
+function erroLogin(m){
+  const e=document.getElementById('erro-login');
+  e.textContent=m; e.style.display='block';
+  const b=document.getElementById('btn-ok');
+  b.disabled=false; b.textContent='Entrar';
+}
+
+async function carregar(){
+  document.getElementById('tela-login').style.display='none';
+  document.getElementById('dashboard').style.display='block';
+  document.getElementById('corpo').innerHTML='<div class="loading"><div class="spin"></div>Carregando dados...</div>';
+  try{
+    const r=await fetch(`${API}/painel?key=${encodeURIComponent(chave)}`);
+    if(r.status===401){erroLogin('Chave incorreta.');document.getElementById('tela-login').style.display='flex';document.getElementById('dashboard').style.display='none';return;}
+    if(!r.ok)throw new Error();
+    render(await r.json());
+  }catch{
+    document.getElementById('corpo').innerHTML=`<div class="loading">Erro ao conectar.<br><small style="color:var(--apagado)">Verifique se o backend está online.</small><br><br><button class="btn" style="width:auto;padding:8px 20px;margin-top:12px" onclick="carregar()">Tentar novamente</button></div>`;
   }
+}
 
-  function sair() {
-    sessionStorage.removeItem('zp_key');
-    chaveAtual = '';
-    document.getElementById('tela-login').style.display = 'flex';
-    document.getElementById('dashboard').style.display = 'none';
-  }
+function dt(d){if(!d)return'—';return new Date(d).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric'});}
+function ago(d){
+  if(!d)return'Nunca';
+  const m=Math.floor((Date.now()-new Date(d))/60000);
+  if(m<1)return'Agora'; if(m<60)return m+'min atrás';
+  if(m<1440)return Math.floor(m/60)+'h atrás';
+  return Math.floor(m/1440)+'d atrás';
+}
+function planoClass(p){return{starter:'bc',pro:'baz',escala:'bv'}[p]||'bc';}
+function sig(nome){return(nome||'?').replace(/[^a-zA-ZÀ-ú]/g,'').slice(0,2).toUpperCase()||'??';}
 
-  async function mostrarDashboard() {
-    document.getElementById('tela-login').style.display = 'none';
-    document.getElementById('dashboard').style.display = 'block';
-    document.getElementById('corpo').innerHTML = '<div class="loading">Carregando dados...</div>';
-
-    try {
-      const res = await fetch(`${API}/painel?key=${encodeURIComponent(chaveAtual)}`);
-      if (res.status === 401) {
-        document.getElementById('erro-login').textContent = 'Chave incorreta.';
-        document.getElementById('erro-login').style.display = 'block';
-        document.getElementById('tela-login').style.display = 'flex';
-        document.getElementById('dashboard').style.display = 'none';
-        return;
-      }
-      const data = await res.json();
-      renderizar(data);
-    } catch (e) {
-      document.getElementById('corpo').innerHTML = '<div class="loading">Erro ao conectar com o servidor. Tente novamente.</div>';
-    }
-  }
-
-  function formatarData(d) {
-    if (!d) return '—';
-    return new Date(d).toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric' });
-  }
-
-  function renderizar(data) {
-    const { totalEmpresas, empresasAtivas, empresas, geradoEm } = data;
-    const inativos = totalEmpresas - empresasAtivas;
-
-    document.getElementById('corpo').innerHTML = `
-      <div class="metrics">
-        <div class="metric">
-          <div class="label">Total de empresas</div>
-          <div class="valor">${totalEmpresas}</div>
-          <div class="sub">cadastradas</div>
+function render(data){
+  const{totalEmpresas,empresasAtivas,totalUsuarios,totalOnboardingsAtivos,mrr,geradoEm,empresas}=data;
+  document.getElementById('att').textContent='Atualizado '+ago(geradoEm);
+  document.getElementById('corpo').innerHTML=`
+    <div class="grid4">
+      <div class="metric"><div class="lbl">Empresas</div><div class="val">${totalEmpresas}</div><div class="sub">${empresasAtivas} ativas · ${totalEmpresas-empresasAtivas} inativas</div></div>
+      <div class="metric"><div class="lbl">Usuários</div><div class="val">${totalUsuarios}</div><div class="sub">em todas as empresas</div></div>
+      <div class="metric"><div class="lbl">Onboardings ativos</div><div class="val">${totalOnboardingsAtivos}</div><div class="sub">em andamento</div></div>
+      <div class="metric"><div class="lbl">MRR estimado</div><div class="val" style="color:var(--verde)">R$${mrr}</div><div class="sub">receita mensal recorrente</div></div>
+    </div>
+    <div class="toolbar">
+      <span class="sec-titulo">Empresas (${totalEmpresas})</span>
+      <input class="busca" type="text" placeholder="Buscar empresa..." oninput="filtrar(this.value)">
+    </div>
+    <div class="empresas" id="lista">
+      ${empresas.map((e,i)=>`
+        <div class="emp-card" id="c${e.id}" style="${!e.ativa?'opacity:.6':''}">
+          <div class="emp-header" onclick="tog('${e.id}')">
+            <div class="emp-left">
+              <div class="av" style="background:${CORES[i%CORES.length]}">${sig(e.nome)}</div>
+              <div style="min-width:0">
+                <div class="emp-nome">${e.nome||'Sem nome'}</div>
+                <div class="emp-meta">
+                  ${e.cnpj?`<span>${e.cnpj}</span><span>·</span>`:''}
+                  <span class="badge ${e.ativa?'bv':'bve'}">${e.ativa?'Ativa':'Inativa'}</span>
+                  <span class="badge ${planoClass(e.plano)}">${(e.plano||'starter')[0].toUpperCase()+(e.plano||'starter').slice(1)}</span>
+                </div>
+              </div>
+            </div>
+            <div class="emp-right">
+              <div class="estat"><div class="n">${e.totalUsuarios}</div><div class="l">usuários</div></div>
+              <div class="div"></div>
+              <div class="estat"><div class="n">${e.clientes||0}</div><div class="l">clientes</div></div>
+              <div class="div"></div>
+              <div class="estat"><div class="n">${e.implantacoesAtivas}</div><div class="l">onboardings</div></div>
+              <div class="div"></div>
+              <div class="estat"><div class="n" style="color:var(--verde)">${PLANOS[e.plano]?'R$'+PLANOS[e.plano]:'—'}</div><div class="l">plano</div></div>
+              <svg class="chevron" id="sv${e.id}" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+          </div>
+          <div class="emp-det" id="d${e.id}">
+            <div class="det-topo">
+              <div><div style="font-size:.7rem;color:var(--apagado);margin-bottom:4px">ID de suporte</div><span class="id-sup">${e.idSuporte}</span></div>
+              ${e.titular?`<div style="text-align:right">
+                <div style="font-size:.7rem;color:var(--apagado);margin-bottom:2px">Titular</div>
+                <div style="font-size:.9rem;font-weight:600">${e.titular.nome}</div>
+                <div style="font-size:.72rem;color:var(--apagado)">${e.titular.email}</div>
+                <span class="badge ${e.titular.emailVerificado?'bv':'bam'}" style="margin-top:4px">${e.titular.emailVerificado?'E-mail verificado':'E-mail pendente'}</span>
+              </div>`:''}
+            </div>
+            <div class="det-grid">
+              <div class="bloco">
+                <div class="bloco-t">Informações</div>
+                <div class="linha"><span class="lk">Cadastro</span><span class="lv">${dt(e.criadaEm)}</span></div>
+                <div class="linha"><span class="lk">Plano</span><span class="lv">${(e.plano||'starter')[0].toUpperCase()+(e.plano||'starter').slice(1)} — ${PLANOS[e.plano]?'R$'+PLANOS[e.plano]+'/mês':'—'}</span></div>
+                <div class="linha"><span class="lk">Último acesso</span><span class="lv">${ago(e.ultimoAcesso)}</span></div>
+                <div class="linha"><span class="lk">Alerta onboarding</span><span class="lv">${e.alertaOnboardingDias} dias</span></div>
+                <div class="linha"><span class="lk">Resumo</span><span class="lv">${e.resumoFrequencia||'semanal'}</span></div>
+              </div>
+              <div class="bloco">
+                <div class="bloco-t">Onboardings</div>
+                <div class="linha"><span class="lk">Em andamento</span><span class="lv">${e.implantacoesAtivas}</span></div>
+                <div class="linha"><span class="lk">Concluídos</span><span class="lv">${e.implantacoesConcluidas}</span></div>
+                <div class="linha"><span class="lk">Clientes</span><span class="lv">${e.clientes||0}</span></div>
+                <div style="font-size:.7rem;color:var(--apagado);margin-top:8px;margin-bottom:4px;display:flex;justify-content:space-between"><span>Progresso médio</span><span>${e.progressoMedio}%</span></div>
+                <div class="prog-bar"><div class="prog-fill" style="width:${e.progressoMedio}%"></div></div>
+              </div>
+              ${e.colaboradores?.length?`
+                <div class="bloco">
+                  <div class="bloco-t">Colaboradores (${e.colaboradores.length})</div>
+                  ${e.colaboradores.map(c=>`
+                    <div class="colab">
+                      <div class="cav">${c.nome.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase()}</div>
+                      <div><div style="font-weight:500;font-size:.78rem">${c.nome}</div><div style="color:var(--apagado);font-size:.68rem">${c.email}</div></div>
+                    </div>
+                  `).join('')}
+                </div>
+              `:''}
+              <div class="bloco">
+                <div class="bloco-t">Configurações</div>
+                <div class="linha"><span class="lk">Status</span><span class="lv" style="color:${e.ativa?'var(--verde)':'var(--vermelho)'}">${e.ativa?'Ativa':'Inativa'}</span></div>
+                <div class="linha"><span class="lk">E-mail verificado</span><span class="lv">${e.titular?.emailVerificado?'Sim':'Não'}</span></div>
+                <div class="linha"><span class="lk">Total usuários</span><span class="lv">${e.totalUsuarios}</span></div>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="metric">
-          <div class="label">Ativas</div>
-          <div class="valor" style="color:#00b141">${empresasAtivas}</div>
-          <div class="sub">em uso</div>
-        </div>
-        <div class="metric">
-          <div class="label">Inativas</div>
-          <div class="valor" style="color:#f87171">${inativos}</div>
-          <div class="sub">sem acesso</div>
-        </div>
-        <div class="metric">
-          <div class="label">Total colaboradores</div>
-          <div class="valor">${empresas.reduce((a,e)=>a+e.totalUsuarios,0)}</div>
-          <div class="sub">em todas as empresas</div>
-        </div>
-      </div>
+      `).join('')}
+    </div>
+  `;
+}
 
-      <div class="sec-titulo">Empresas cadastradas</div>
-      <p class="atualizado">Atualizado em ${new Date(geradoEm).toLocaleString('pt-BR')}</p>
-      <input class="busca" type="text" placeholder="Buscar empresa..." oninput="filtrarTabela(this.value)" />
+function tog(id){
+  const d=document.getElementById('d'+id);
+  const s=document.getElementById('sv'+id);
+  const on=d.classList.contains('on');
+  document.querySelectorAll('.emp-det').forEach(x=>x.classList.remove('on'));
+  document.querySelectorAll('.chevron').forEach(x=>x.style.transform='');
+  if(!on){d.classList.add('on');s.style.transform='rotate(180deg)';}
+}
 
-      <table id="tabela-empresas">
-        <thead>
-          <tr>
-            <th>Empresa</th>
-            <th>Titular</th>
-            <th>Plano</th>
-            <th>Usuários</th>
-            <th>Onboardings ativos</th>
-            <th>Concluídos</th>
-            <th>Status</th>
-            <th>Cadastro</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${empresas.map(e => `
-            <tr>
-              <td>
-                <div style="font-weight:600">${e.nome || '—'}</div>
-                ${e.cnpj ? `<div style="font-size:0.72rem;color:#71717a">${e.cnpj}</div>` : ''}
-              </td>
-              <td>
-                ${e.titular ? `
-                  <div>${e.titular.nome}</div>
-                  <div style="font-size:0.72rem;color:#71717a">${e.titular.email}</div>
-                ` : '<span style="color:#71717a">—</span>'}
-              </td>
-              <td><span class="badge ${e.plano||'starter'}">${(e.plano||'starter').charAt(0).toUpperCase()+(e.plano||'starter').slice(1)}</span></td>
-              <td>${e.totalUsuarios}</td>
-              <td>${e.implantacoesAtivas}</td>
-              <td>${e.implantacoesConcluidas}</td>
-              <td><span class="badge ${e.ativa?'ativo':'inativo'}">${e.ativa?'Ativa':'Inativa'}</span></td>
-              <td style="font-size:0.78rem;color:#71717a">${formatarData(e.criadaEm)}</td>
-            </tr>
-          `).join('')}
-        </tbody>
-      </table>
-    `;
-  }
+function filtrar(b){
+  document.querySelectorAll('.emp-card').forEach(c=>{
+    c.style.display=c.textContent.toLowerCase().includes(b.toLowerCase())?'':'none';
+  });
+}
 
-  function filtrarTabela(busca) {
-    const linhas = document.querySelectorAll('#tabela-empresas tbody tr');
-    linhas.forEach(linha => {
-      linha.style.display = linha.textContent.toLowerCase().includes(busca.toLowerCase()) ? '' : 'none';
-    });
-  }
-
-  // Auto-login se já tiver chave salva
-  const chaveSalva = sessionStorage.getItem('zp_key');
-  if (chaveSalva) { chaveAtual = chaveSalva; mostrarDashboard(); }
+const sv=sessionStorage.getItem('zp');
+if(sv){chave=sv;carregar();}
 </script>
 </body>
 </html>
