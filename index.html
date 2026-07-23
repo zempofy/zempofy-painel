@@ -98,9 +98,7 @@
     document.getElementById('corpo').innerHTML = '<div class="loading">Carregando dados...</div>';
 
     try {
-      const res = await fetch(`${API}/painel`, {
-        headers: { 'x-admin-key': chaveAtual }
-      });
+      const res = await fetch(`${API}/painel?key=${encodeURIComponent(chaveAtual)}`);
       if (res.status === 401) {
         document.getElementById('erro-login').textContent = 'Chave incorreta.';
         document.getElementById('erro-login').style.display = 'block';
