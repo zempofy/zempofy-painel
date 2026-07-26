@@ -142,7 +142,7 @@ async function carregar(){
   document.getElementById('dashboard').style.display='block';
   document.getElementById('corpo').innerHTML='<div class="loading"><div class="spin"></div>Carregando dados...</div>';
   try{
-    const r=await fetch(`${API}/painel?key=${encodeURIComponent(chave)}`);
+    const r=await fetch(`${API}/painel`,{headers:{'x-admin-key':chave}});
     if(r.status===401){erroLogin('Chave incorreta.');document.getElementById('tela-login').style.display='flex';document.getElementById('dashboard').style.display='none';return;}
     if(!r.ok)throw new Error();
     render(await r.json());
