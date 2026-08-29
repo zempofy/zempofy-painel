@@ -84,7 +84,11 @@ label{display:block;font-size:.7rem;font-weight:600;color:var(--apagado);text-tr
 .menu-wrap{position:relative;flex-shrink:0}
 .btn-menu{background:var(--card2);border:1px solid var(--borda);border-radius:6px;color:var(--apagado);padding:3px 9px;cursor:pointer;font-size:.9rem;line-height:1.1;letter-spacing:1.5px;font-family:inherit}
 .btn-menu:hover{color:var(--texto);border-color:var(--apagado)}
-.menu-drop{position:absolute;right:0;top:calc(100% + 5px);background:var(--card2);border:1px solid var(--borda);border-radius:9px;overflow:hidden;z-index:50;min-width:160px;box-shadow:0 8px 24px rgba(0,0,0,.55)}
+/* position:fixed calculado via getBoundingClientRect() do botão que abriu, e o elemento é
+   anexado no final do <body> (não fica dentro de .emp-card) — .emp-card tem overflow:hidden
+   pra arredondar as bordas, então um dropdown position:absolute ali dentro ficava cortado
+   (o "Excluir" ficava inacessível). Mesmo padrão de portal já usado no menu de Equipe.jsx. */
+.menu-drop{position:fixed;background:var(--card2);border:1px solid var(--borda);border-radius:9px;overflow:hidden;z-index:500;min-width:160px;box-shadow:0 8px 24px rgba(0,0,0,.55)}
 .menu-item{display:block;width:100%;padding:9px 14px;background:none;border:none;color:var(--texto);font-size:.8rem;text-align:left;cursor:pointer;font-family:inherit}
 .menu-item:hover{background:rgba(255,255,255,.06)}
 .menu-item.perigo{color:var(--vermelho)}
@@ -325,18 +329,36 @@ function menu(ev,id){
   if(jaAberto)return;
   const e=EMPRESAS.find(x=>String(x.id)===String(id));
   if(!e)return;
+  const btn=ev.currentTarget;
   const d=document.createElement('div');
   d.className='menu-drop'; d.id='m'+id;
+  d.setAttribute('data-menu-portal',''); // marca pro listener de "clique fora" reconhecer, já que fica fora de .menu-wrap
   d.onclick=x=>x.stopPropagation();
   d.innerHTML=e.ativa
     ?`<button class="menu-item" onclick="mudarStatus('${id}','inativar')">Inativar</button>`
     :`<button class="menu-item" onclick="mudarStatus('${id}','reativar')">Reativar</button>
       <button class="menu-item perigo" onclick="abrirExcluir('${id}')">Excluir</button>`;
-  ev.currentTarget.parentElement.appendChild(d);
+
+  // Portal pro final do <body>: .emp-card tem overflow:hidden (pra arredondar borda), então um
+  // dropdown preso ali dentro ficava cortado — fora da árvore com overflow, isso não acontece mais.
+  document.body.appendChild(d);
+
+  // Ancora no botão via getBoundingClientRect() (position:fixed, relativo à viewport). Abre pra
+  // baixo por padrão; se não sobrar espaço abaixo (linha perto do fim da tela), abre pra cima.
+  const r=btn.getBoundingClientRect();
+  const alturaEstim=Math.min(d.scrollHeight||90,200);
+  const espacoAbaixo=window.innerHeight-r.bottom;
+  const abrirParaCima=espacoAbaixo<alturaEstim+8;
+  d.style.right=(window.innerWidth-r.right)+'px';
+  if(abrirParaCima){d.style.bottom=(window.innerHeight-r.top+5)+'px';}
+  else{d.style.top=(r.bottom+5)+'px';}
 }
 function fecharMenus(){document.querySelectorAll('.menu-drop').forEach(m=>m.remove());}
-document.addEventListener('click',e=>{if(!e.target.closest('.menu-wrap'))fecharMenus();});
+document.addEventListener('click',e=>{if(!e.target.closest('.menu-wrap')&&!e.target.closest('[data-menu-portal]'))fecharMenus();});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){fecharMenus();fecharModal();}});
+// Position:fixed é relativo à viewport, não ao botão — se a página rolar com o menu aberto,
+// ele descolaria do "···" que o abriu. Mais simples fechar do que reposicionar a cada scroll.
+window.addEventListener('scroll',fecharMenus,true);
 
 // ── Inativar / Reativar ──
 async function mudarStatus(id,acao){
