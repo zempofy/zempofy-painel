@@ -80,6 +80,32 @@ label{display:block;font-size:.7rem;font-weight:600;color:var(--apagado);text-tr
 .spin{width:24px;height:24px;border:2px solid var(--borda);border-top-color:var(--verde);border-radius:50%;animation:s .8s linear infinite;margin:0 auto 12px}
 @keyframes s{to{transform:rotate(360deg)}}
 .chevron{color:var(--apagado);transition:transform .2s;flex-shrink:0}
+/* Menu "···" por empresa + modais de inativar/excluir */
+.menu-wrap{position:relative;flex-shrink:0}
+.btn-menu{background:var(--card2);border:1px solid var(--borda);border-radius:6px;color:var(--apagado);padding:3px 9px;cursor:pointer;font-size:.9rem;line-height:1.1;letter-spacing:1.5px;font-family:inherit}
+.btn-menu:hover{color:var(--texto);border-color:var(--apagado)}
+.menu-drop{position:absolute;right:0;top:calc(100% + 5px);background:var(--card2);border:1px solid var(--borda);border-radius:9px;overflow:hidden;z-index:50;min-width:160px;box-shadow:0 8px 24px rgba(0,0,0,.55)}
+.menu-item{display:block;width:100%;padding:9px 14px;background:none;border:none;color:var(--texto);font-size:.8rem;text-align:left;cursor:pointer;font-family:inherit}
+.menu-item:hover{background:rgba(255,255,255,.06)}
+.menu-item.perigo{color:var(--vermelho)}
+.modal-fundo{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:100;display:flex;align-items:center;justify-content:center;padding:20px}
+.modal-box{background:var(--card);border:1px solid var(--borda);border-radius:14px;width:100%;max-width:450px;overflow:hidden}
+.modal-topo{padding:16px 20px;border-bottom:1px solid var(--borda);display:flex;align-items:center;justify-content:space-between}
+.modal-titulo{font-size:.92rem;font-weight:700}
+.modal-corpo{padding:20px}
+.modal-corpo p{font-size:.85rem;color:var(--secundario);line-height:1.6;margin-bottom:14px}
+.modal-corpo strong{color:var(--texto)}
+.modal-rodape{padding:14px 20px;border-top:1px solid var(--borda);display:flex;gap:10px;justify-content:flex-end}
+.btn-sec{background:none;border:1px solid var(--borda);border-radius:8px;color:var(--apagado);padding:8px 16px;font-size:.82rem;cursor:pointer;font-family:inherit}
+.btn-perigo{background:var(--vermelho-bg);border:1px solid rgba(248,113,113,.35);border-radius:8px;color:var(--vermelho);padding:8px 16px;font-size:.82rem;font-weight:600;cursor:pointer;font-family:inherit}
+.btn-perigo:disabled{opacity:.4;cursor:not-allowed}
+.caixa-alerta{background:var(--vermelho-bg);border:1px solid rgba(248,113,113,.3);border-radius:9px;padding:11px 14px;margin-bottom:14px}
+.caixa-alerta p{color:var(--vermelho);font-size:.8rem;margin:0;line-height:1.5}
+.cod-inp{width:100%;padding:12px;background:var(--card2);border:1px solid var(--borda);border-radius:9px;color:var(--texto);font-family:'JetBrains Mono',monospace;font-size:1.5rem;text-align:center;letter-spacing:8px;outline:none}
+.cod-inp:focus{border-color:var(--verde)}
+.toast{position:fixed;bottom:24px;right:24px;background:var(--card);border:1px solid var(--borda);border-left:3px solid var(--verde);border-radius:10px;padding:13px 18px;font-size:.83rem;z-index:200;box-shadow:0 8px 24px rgba(0,0,0,.55);max-width:340px}
+.toast.erro{border-left-color:var(--vermelho)}
+.env-badge{background:var(--amarelo-bg);color:var(--amarelo);border:1px solid rgba(245,158,11,.3);border-radius:6px;padding:3px 9px;font-size:.68rem;font-weight:700}
 </style>
 </head>
 <body>
@@ -99,6 +125,7 @@ label{display:block;font-size:.7rem;font-weight:600;color:var(--apagado);text-tr
   <div class="topbar">
     <div class="topbar-logo"><div class="dot"></div>Zempofy &middot; Painel Admin</div>
     <div style="display:flex;align-items:center;gap:12px">
+      <span class="env-badge" id="env" style="display:none">Backend local</span>
       <span style="font-size:.72rem;color:var(--apagado)" id="att"></span>
       <button class="btn-sair" onclick="sair()">Sair</button>
     </div>
@@ -107,8 +134,13 @@ label{display:block;font-size:.7rem;font-weight:600;color:var(--apagado);text-tr
 </div>
 
 <script>
-const API='https://zempofyofc.onrender.com/api';
+// Aberto em localhost fala com o backend local; publicado, fala com produção. Sem isso, testar
+// exclusão de empresa na máquina local apagaria dados reais de produção sem querer.
+const LOCAL=['localhost','127.0.0.1'].includes(location.hostname);
+const API=LOCAL?'http://localhost:3001/api':'https://zempofyofc.onrender.com/api';
 let chave='';
+let EMPRESAS=[];      // cache da lista pra atualizar linha a linha sem recarregar tudo
+let empresaAlvo=null; // empresa em processo de exclusão (entre os dois modais)
 const PLANOS={starter:39,pro:79,escala:129};
 const CORES=['#00b141','#3b82f6','#8b5cf6','#f59e0b','#ec4899','#06b6d4'];
 
@@ -164,6 +196,7 @@ function sig(nome){return(nome||'?').replace(/[^a-zA-ZÀ-ú]/g,'').slice(0,2).to
 
 function render(data){
   const{totalEmpresas,empresasAtivas,totalUsuarios,totalOnboardingsAtivos,mrr,geradoEm,empresas}=data;
+  EMPRESAS=empresas;
   document.getElementById('att').textContent='Atualizado '+ago(geradoEm);
   document.getElementById('corpo').innerHTML=`
     <div class="grid4">
@@ -199,6 +232,9 @@ function render(data){
               <div class="estat"><div class="n">${e.implantacoesAtivas}</div><div class="l">onboardings</div></div>
               <div class="div"></div>
               <div class="estat"><div class="n" style="color:var(--verde)">${PLANOS[e.plano]?'R$'+PLANOS[e.plano]:'—'}</div><div class="l">plano</div></div>
+              <div class="menu-wrap">
+                <button class="btn-menu" onclick="menu(event,'${e.id}')" title="Ações">&middot;&middot;&middot;</button>
+              </div>
               <svg class="chevron" id="sv${e.id}" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
             </div>
           </div>
@@ -268,6 +304,181 @@ function filtrar(b){
     c.style.display=c.textContent.toLowerCase().includes(b.toLowerCase())?'':'none';
   });
 }
+
+// ── Toast ──
+function toast(msg,tipo){
+  document.querySelectorAll('.toast').forEach(t=>t.remove());
+  const t=document.createElement('div');
+  t.className='toast'+(tipo==='erro'?' erro':'');
+  t.textContent=msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),4500);
+}
+
+// ── Menu "···" ──
+// Inativar aparece com a empresa ativa; Reativar + Excluir só depois de inativada
+// (mesma regra de Setor/Equipe/Modelos: inativar primeiro, excluir depois).
+function menu(ev,id){
+  ev.stopPropagation(); // não deixa o clique abrir/fechar o card da empresa
+  const jaAberto=document.getElementById('m'+id);
+  fecharMenus();
+  if(jaAberto)return;
+  const e=EMPRESAS.find(x=>String(x.id)===String(id));
+  if(!e)return;
+  const d=document.createElement('div');
+  d.className='menu-drop'; d.id='m'+id;
+  d.onclick=x=>x.stopPropagation();
+  d.innerHTML=e.ativa
+    ?`<button class="menu-item" onclick="mudarStatus('${id}','inativar')">Inativar</button>`
+    :`<button class="menu-item" onclick="mudarStatus('${id}','reativar')">Reativar</button>
+      <button class="menu-item perigo" onclick="abrirExcluir('${id}')">Excluir</button>`;
+  ev.currentTarget.parentElement.appendChild(d);
+}
+function fecharMenus(){document.querySelectorAll('.menu-drop').forEach(m=>m.remove());}
+document.addEventListener('click',e=>{if(!e.target.closest('.menu-wrap'))fecharMenus();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){fecharMenus();fecharModal();}});
+
+// ── Inativar / Reativar ──
+async function mudarStatus(id,acao){
+  fecharMenus();
+  const e=EMPRESAS.find(x=>String(x.id)===String(id));
+  if(!e)return;
+  if(acao==='inativar'&&!confirm(`Inativar "${e.nome}"?\n\nNenhum colaborador dessa empresa conseguirá fazer login até você reativar.`))return;
+  try{
+    const r=await fetch(`${API}/painel/empresas/${id}/${acao}`,{method:'PATCH',headers:{'x-admin-key':chave}});
+    const dados=await r.json();
+    if(!r.ok)throw new Error(dados.erro||'Falha na operação.');
+    e.ativa=dados.ativa;
+    atualizarLinha(e);
+    toast(acao==='inativar'?`"${e.nome}" foi inativada.`:`"${e.nome}" foi reativada.`);
+  }catch(err){toast(err.message,'erro');}
+}
+
+// Atualiza badge, opacidade e status da linha sem recarregar a página inteira
+function atualizarLinha(e){
+  const card=document.getElementById('c'+e.id);
+  if(!card)return;
+  card.style.opacity=e.ativa?'':'.6';
+  const badge=card.querySelector('.emp-meta .badge');
+  if(badge){badge.textContent=e.ativa?'Ativa':'Inativa';badge.className='badge '+(e.ativa?'bv':'bve');}
+  const status=card.querySelector('.emp-det .bloco:last-child .lv');
+  if(status){status.textContent=e.ativa?'Ativa':'Inativa';status.style.color=e.ativa?'var(--verde)':'var(--vermelho)';}
+  atualizarMetricas();
+}
+
+// Recalcula os cards do topo a partir do cache — sem isso, inativar ou excluir deixava
+// os totais desatualizados até alguém recarregar a página.
+function atualizarMetricas(){
+  const ativas=EMPRESAS.filter(x=>x.ativa).length;
+  const m=document.querySelectorAll('.metric');
+  if(m.length<4)return;
+  m[0].querySelector('.val').textContent=EMPRESAS.length;
+  m[0].querySelector('.sub').textContent=`${ativas} ativas · ${EMPRESAS.length-ativas} inativas`;
+  m[1].querySelector('.val').textContent=EMPRESAS.reduce((a,e)=>a+(e.totalUsuarios||0),0);
+  m[2].querySelector('.val').textContent=EMPRESAS.reduce((a,e)=>a+(e.implantacoesAtivas||0),0);
+  m[3].querySelector('.val').textContent='R$'+EMPRESAS.reduce((a,e)=>a+(e.ativa?(PLANOS[e.plano]||0):0),0);
+  const t=document.querySelector('.sec-titulo');
+  if(t)t.textContent=`Empresas (${EMPRESAS.length})`;
+}
+
+// ── Exclusão: etapa 1 (digitar o nome exato) ──
+function abrirExcluir(id){
+  fecharMenus();
+  const e=EMPRESAS.find(x=>String(x.id)===String(id));
+  if(!e)return;
+  empresaAlvo=e;
+  modal(`
+    <div class="modal-topo"><span class="modal-titulo">Excluir empresa</span>
+      <button class="btn-sec" style="padding:2px 9px" onclick="fecharModal()">&times;</button></div>
+    <div class="modal-corpo">
+      <div class="caixa-alerta"><p><strong>Essa ação é irreversível.</strong> Todos os dados da empresa serão apagados: usuários, clientes, onboardings, documentos e histórico.</p></div>
+      <p>Para confirmar, digite o nome exato da empresa: <strong>${escapar(e.nome)}</strong></p>
+      <!-- Compara com empresaAlvo.nome em vez de interpolar o nome aqui: nome com aspas quebraria
+           o atributo HTML e o botão nunca habilitaria. -->
+      <input class="inp" id="conf-nome" style="margin-bottom:0" placeholder="Nome da empresa" autocomplete="off"
+        oninput="document.getElementById('btn-cont').disabled = this.value.trim() !== empresaAlvo.nome">
+    </div>
+    <div class="modal-rodape">
+      <button class="btn-sec" onclick="fecharModal()">Cancelar</button>
+      <button class="btn-perigo" id="btn-cont" disabled onclick="solicitarCodigo()">Continuar</button>
+    </div>`);
+  setTimeout(()=>document.getElementById('conf-nome')?.focus(),50);
+}
+
+// ── Exclusão: etapa 2 (código enviado por e-mail) ──
+async function solicitarCodigo(){
+  const btn=document.getElementById('btn-cont');
+  btn.disabled=true; btn.textContent='Enviando código...';
+  try{
+    const r=await fetch(`${API}/painel/empresas/${empresaAlvo.id}/solicitar-exclusao`,{method:'POST',headers:{'x-admin-key':chave}});
+    const dados=await r.json();
+    if(!r.ok)throw new Error(dados.erro||'Falha ao enviar o código.');
+    modalCodigo();
+  }catch(err){
+    btn.disabled=false; btn.textContent='Continuar';
+    toast(err.message,'erro');
+  }
+}
+
+function modalCodigo(){
+  modal(`
+    <div class="modal-topo"><span class="modal-titulo">Confirmar exclusão</span>
+      <button class="btn-sec" style="padding:2px 9px" onclick="fecharModal()">&times;</button></div>
+    <div class="modal-corpo">
+      <p>Enviamos um código de 6 dígitos para o e-mail do administrador. Digite-o abaixo para excluir <strong>${escapar(empresaAlvo.nome)}</strong> permanentemente.</p>
+      <input class="cod-inp" id="cod" maxlength="6" inputmode="numeric" placeholder="000000" autocomplete="off"
+        oninput="this.value=this.value.replace(/\\D/g,'');document.getElementById('btn-del').disabled=this.value.length!==6"
+        onkeydown="if(event.key==='Enter'&&this.value.length===6)excluirDefinitivo()">
+      <p id="cod-erro" style="color:var(--vermelho);font-size:.8rem;margin:12px 0 0;display:none"></p>
+      <p style="font-size:.75rem;color:var(--apagado);margin:12px 0 0">O código vale por 10 minutos e só pode ser usado uma vez.</p>
+    </div>
+    <div class="modal-rodape">
+      <button class="btn-sec" onclick="fecharModal()">Cancelar</button>
+      <button class="btn-perigo" id="btn-del" disabled onclick="excluirDefinitivo()">Excluir permanentemente</button>
+    </div>`);
+  setTimeout(()=>document.getElementById('cod')?.focus(),50);
+}
+
+async function excluirDefinitivo(){
+  const btn=document.getElementById('btn-del');
+  const err=document.getElementById('cod-erro');
+  const codigo=document.getElementById('cod').value.trim();
+  btn.disabled=true; btn.textContent='Excluindo...'; err.style.display='none';
+  try{
+    const r=await fetch(`${API}/painel/empresas/${empresaAlvo.id}`,{
+      method:'DELETE',
+      headers:{'x-admin-key':chave,'Content-Type':'application/json'},
+      body:JSON.stringify({codigo}),
+    });
+    const dados=await r.json();
+    if(!r.ok)throw new Error(dados.erro||'Falha ao excluir.');
+    // Sai da lista local sem recarregar a página inteira
+    document.getElementById('c'+empresaAlvo.id)?.remove();
+    EMPRESAS=EMPRESAS.filter(x=>String(x.id)!==String(empresaAlvo.id));
+    atualizarMetricas();
+    fecharModal();
+    toast(dados.avisoR2?`Empresa excluída. ${dados.avisoR2}`:'Empresa excluída permanentemente.');
+    empresaAlvo=null;
+  }catch(e){
+    // Código errado não fecha o modal — dá pra tentar de novo dentro dos 10 min
+    btn.textContent='Excluir permanentemente';
+    btn.disabled=document.getElementById('cod').value.length!==6;
+    err.textContent=e.message; err.style.display='block';
+  }
+}
+
+function modal(html){
+  fecharModal();
+  const f=document.createElement('div');
+  f.className='modal-fundo'; f.id='modal';
+  f.onclick=e=>{if(e.target===f)fecharModal();};
+  f.innerHTML=`<div class="modal-box">${html}</div>`;
+  document.body.appendChild(f);
+}
+function fecharModal(){document.getElementById('modal')?.remove();}
+function escapar(s){const d=document.createElement('div');d.textContent=s??'';return d.innerHTML;}
+
+if(LOCAL)document.getElementById('env').style.display='';
 
 const sv=sessionStorage.getItem('zp');
 if(sv){chave=sv;carregar();}
